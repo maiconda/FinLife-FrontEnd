@@ -1,26 +1,12 @@
 "use client"
 
-import ConviteScreen from "../../components/convite-screen"
-import { useAuth } from "../../context/auth-context"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import ConvitesScreen from "../../components/convites-screen"
+import ConviteLayout from "../../components/layout/convite-layout"
 
 export default function ConvitePage() {
-  const { user } = useAuth()
-  const router = useRouter()
-
-  // Verificar permissões
-  useEffect(() => {
-    if (!user) {
-      router.push("/login")
-    } else if (user.role !== "convite") {
-      router.push("/dashboard")
-    }
-  }, [user, router])
-
-  if (!user) {
-    return null
-  }
-
-  return <ConviteScreen />
+  return (
+    <ConviteLayout>
+      <ConvitesScreen />
+    </ConviteLayout>
+  )
 }

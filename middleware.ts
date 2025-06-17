@@ -1,30 +1,28 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Função para obter o usuário da sessão (simulada)
+// Função para obter o usuário da sessão
 function getUserFromSession(request: NextRequest) {
-  // Em produção, você verificaria um token JWT ou cookie de sessão
-  // Aqui estamos simulando com cookies para demonstração
   const role = request.cookies.get("user_role")?.value
 
   if (!role) return null
 
   return {
-    role: role as "convite" | "membro" | "admin",
+    role: role as "CONVIDADO" | "MEMBRO" | "ADMIN",
   }
 }
 
 // Rotas públicas que não precisam de autenticação
 const publicRoutes = ["/login", "/register"]
 
-// Rotas que apenas admin pode acessar
-const adminRoutes = ["/admin", "/admin/usuarios", "/admin/configuracoes"]
-
-// Rotas que membros e admin podem acessar
-const memberRoutes = ["/dashboard", "/perfil", "/documentos"]
-
-// Rota exclusiva para convites
+// Rota exclusiva para CONVIDADO
 const inviteRoutes = ["/convite"]
+
+// Rotas que MEMBRO e ADMIN podem acessar
+const memberRoutes = ["/dashboard"]
+
+// Rota que todos podem acessar
+const profileRoutes = ["/perfil"]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -42,28 +40,26 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Perfil pode ser acessado por todos os usuários autenticados
+  if (profileRoutes.some((route) => pathname.startsWith(route))) {
+    return NextResponse.next()
+  }
+
   // Lógica de redirecionamento baseada em permissões
-  if (user.role === "convite") {
-    // Usuários com convite só podem acessar a rota de convite
+  if (user.role === "CONVIDADO") {
+    // CONVIDADO só pode acessar convites e perfil
     if (!inviteRoutes.some((route) => pathname.startsWith(route))) {
       const url = request.nextUrl.clone()
       url.pathname = "/convite"
       return NextResponse.redirect(url)
     }
-  } else if (user.role === "membro") {
-    // Membros não podem acessar rotas de admin
-    if (adminRoutes.some((route) => pathname.startsWith(route))) {
+  } else if (user.role === "MEMBRO" || user.role === "ADMIN") {
+    // MEMBRO e ADMIN não podem acessar rota de convites
+    if (inviteRoutes.some((route) => pathname.startsWith(route))) {
       const url = request.nextUrl.clone()
       url.pathname = "/dashboard"
       return NextResponse.redirect(url)
     }
-  }
-
-  // Admin pode acessar todas as rotas exceto a de convite
-  if (user.role === "admin" && inviteRoutes.some((route) => pathname.startsWith(route))) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/dashboard"
-    return NextResponse.redirect(url)
   }
 
   return NextResponse.next()

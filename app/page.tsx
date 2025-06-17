@@ -12,7 +12,7 @@ export default function Home() {
     // Redirecionar baseado na permissão
     if (!user) {
       router.push("/login")
-    } else if (user.role === "convite") {
+    } else if (user.role === "CONVIDADO") {
       router.push("/convite")
     } else {
       router.push("/dashboard")

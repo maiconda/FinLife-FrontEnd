@@ -1,17 +1,26 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import DashboardLayout from "../../components/layout/dashboard-layout"
-import { BarChart3, Users, FileText } from "lucide-react"
+import { BarChart3, Users, FileText, Crown, UserIcon } from "lucide-react"
 import { useAuth } from "../../context/auth-context"
 
 export default function DashboardPage() {
   const { user } = useAuth()
 
+  const isAdmin = user?.role === "ADMIN"
+
   return (
     <DashboardLayout>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="flex items-center space-x-3">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <Badge variant={isAdmin ? "default" : "secondary"} className="flex items-center space-x-1">
+            {isAdmin ? <Crown className="w-3 h-3" /> : <UserIcon className="w-3 h-3" />}
+            <span>{user?.role}</span>
+          </Badge>
+        </div>
         <p className="text-muted-foreground">Bem-vindo, {user?.name}</p>
       </div>
 
@@ -59,22 +68,25 @@ export default function DashboardPage() {
       <div className="mt-8">
         <Card>
           <CardHeader>
-            <CardTitle>Atividade Recente</CardTitle>
-            <CardDescription>Últimas ações realizadas no sistema</CardDescription>
+            <CardTitle>Suas Permissões</CardTitle>
+            <CardDescription>O que você pode fazer no sistema</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <p className="font-medium">Documento atualizado</p>
-                    <p className="text-sm text-muted-foreground">Usuário atualizou o documento #123{i}</p>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Há {i} hora{i !== 1 ? "s" : ""}
-                  </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span>Visualizar dashboard</span>
+                <Badge variant="secondary">✓</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Acessar perfil</span>
+                <Badge variant="secondary">✓</Badge>
+              </div>
+              {isAdmin && (
+                <div className="flex items-center justify-between">
+                  <span>Privilégios de administrador</span>
+                  <Badge>✓ ADMIN</Badge>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>

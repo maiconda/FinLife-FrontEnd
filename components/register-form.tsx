@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, User, Mail, MapPin, Calendar, FileText, CheckCircle, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { registerUser, type RegisterData } from "../lib/api"
 
 // Função de validação de CPF inline
 function validateCPF(cpf: string): boolean {
@@ -46,41 +47,6 @@ function validateEmail(email: string): boolean {
 function formatCPF(cpf: string): string {
   cpf = cpf.replace(/[^\d]/g, "")
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-}
-
-// Função para fazer a chamada da API
-async function registerUser(userData: any) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-  if (!API_URL) {
-    throw new Error("URL da API não configurada")
-  }
-
-  console.log("Enviando dados para:", `${API_URL}/users`)
-  console.log("Dados:", userData)
-
-  const response = await fetch(`${API_URL}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  })
-
-  console.log("Status da resposta:", response.status)
-
-  if (!response.ok) {
-    let errorMessage = "Erro ao cadastrar usuário"
-    try {
-      const errorData = await response.json()
-      errorMessage = errorData.message || errorData.error || errorMessage
-    } catch {
-      errorMessage = `Erro ${response.status}: ${response.statusText}`
-    }
-    throw new Error(errorMessage)
-  }
-
-  return response.json()
 }
 
 export default function RegisterForm() {
@@ -171,7 +137,7 @@ export default function RegisterForm() {
 
     try {
       // Preparar dados exatamente como a API espera
-      const userData = {
+      const userData: RegisterData = {
         nome: formData.nome.trim(),
         sobrenome: formData.sobrenome.trim(),
         cpf: formData.cpf.replace(/[^\d]/g, ""), // Remove formatação do CPF
@@ -183,10 +149,10 @@ export default function RegisterForm() {
 
       console.log("Dados preparados para envio:", userData)
 
-      // Fazer a chamada real para a API
-      const result = await registerUser(userData)
+      // Fazer a chamada real para a API usando axios
+      await registerUser(userData)
 
-      console.log("Resposta da API:", result)
+      console.log("Cadastro realizado com sucesso")
       setSuccess(true)
     } catch (error) {
       console.error("Erro no cadastro:", error)

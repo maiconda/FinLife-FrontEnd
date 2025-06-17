@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import type { User } from "../types/user"
-import { loginUser, getUserFromToken, type LoginData } from "../lib/api"
+import { loginUser, setAuthToken, removeAuthToken, getUserFromToken, loginRole, type LoginData } from "../lib/api"
 
 interface AuthContextType {
   user: User | null
@@ -26,15 +26,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = localStorage.getItem("auth_token")
         if (token) {
-          const userData = await getUserFromToken(token)
-          setUser(userData)
+          // Configurar token no axios
+          setAuthToken(token)
+
+          // Obter dados do usuário do token
+          const userData = getUserFromToken(token)
+
+          // Obter role atual da API
+          const roleData = await loginRole()
+
+          const fullUser: User = {
+            ...userData,
+            role: roleData.role as "CONVIDADO" | "MEMBRO" | "ADMIN",
+          }
+
+          setUser(fullUser)
 
           // Definir cookie para o middleware
-          document.cookie = `user_role=${userData.role}; path=/;`
+          document.cookie = `user_role=${roleData.role}; path=/;`
         }
       } catch (error) {
+        console.error("Erro ao inicializar autenticação:", error)
         // Token inválido, remover
         localStorage.removeItem("auth_token")
+        removeAuthToken()
         document.cookie = "user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
       } finally {
         setIsInitializing(false)
@@ -49,13 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const loginData: LoginData = { email, senha: password }
-      const response = await loginUser(loginData)
+      const { user: userData, token } = await loginUser(loginData)
 
       // Salvar token
-      localStorage.setItem("auth_token", response.token)
-
-      // Obter dados do usuário do token
-      const userData = await getUserFromToken(response.token)
+      localStorage.setItem("auth_token", token)
 
       // Definir cookie para o middleware
       document.cookie = `user_role=${userData.role}; path=/;`
@@ -63,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData)
 
       // Redirecionar baseado na permissão
-      if (userData.role === "convite") {
+      if (userData.role === "CONVIDADO") {
         router.push("/convite")
       } else {
         router.push("/dashboard")
@@ -79,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem("auth_token")
+    removeAuthToken()
     document.cookie = "user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
     setUser(null)
     router.push("/login")

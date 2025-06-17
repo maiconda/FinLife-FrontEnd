@@ -5,18 +5,18 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "../../context/auth-context"
-import { LayoutDashboard, User, LogOut } from "lucide-react"
+import { User, LogOut, Mail } from "lucide-react"
 
-export default function Sidebar() {
+export default function ConviteSidebar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
 
   const routes = [
     {
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/dashboard",
-      active: pathname === "/dashboard",
+      label: "Convites",
+      icon: Mail,
+      href: "/convite",
+      active: pathname === "/convite",
     },
     {
       label: "Perfil",
