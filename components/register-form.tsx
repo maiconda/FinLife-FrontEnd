@@ -1,14 +1,14 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, User, Mail, MapPin, Calendar, FileText, CheckCircle, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, User, Mail, MapPin, Calendar, FileText, CheckCircle, AlertCircle, UserPlus } from "lucide-react"
+import { LogoDark } from "@/components/ui/logo-dark"
 import Link from "next/link"
 import { registerUser, type RegisterData } from "../lib/api"
 
@@ -125,37 +125,28 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted")
     setApiError("")
 
     if (!validateForm()) {
-      console.log("Validation failed", errors)
       return
     }
 
     setIsLoading(true)
 
     try {
-      // Preparar dados exatamente como a API espera
       const userData: RegisterData = {
         nome: formData.nome.trim(),
         sobrenome: formData.sobrenome.trim(),
-        cpf: formData.cpf.replace(/[^\d]/g, ""), // Remove formatação do CPF
+        cpf: formData.cpf.replace(/[^\d]/g, ""),
         dthr_nascimento: new Date(formData.dthr_nascimento).toISOString(),
         endereco: formData.endereco.trim(),
         email: formData.email.trim().toLowerCase(),
         senha: formData.senha,
       }
 
-      console.log("Dados preparados para envio:", userData)
-
-      // Fazer a chamada real para a API usando axios
       await registerUser(userData)
-
-      console.log("Cadastro realizado com sucesso")
       setSuccess(true)
     } catch (error) {
-      console.error("Erro no cadastro:", error)
       setApiError(error instanceof Error ? error.message : "Erro ao cadastrar usuário")
     } finally {
       setIsLoading(false)
@@ -164,19 +155,29 @@ export default function RegisterForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen finlife-gradient flex items-center justify-center px-4 py-8">
+        <Card className="w-full max-w-md finlife-card border-0 shadow-2xl">
+          <CardHeader className="text-center pb-6">
+            <div className="mx-auto mb-4 w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-emerald-600" />
             </div>
-            <CardTitle className="text-2xl">Cadastro Realizado!</CardTitle>
-            <CardDescription>Sua conta foi criada com sucesso</CardDescription>
+            <CardTitle className="text-2xl font-bold text-slate-800">Conta Criada!</CardTitle>
+            <CardDescription className="text-slate-600">
+              Bem-vindo ao FinLife! Sua jornada financeira começa agora.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-sm text-muted-foreground">Você já pode fazer login com suas credenciais.</p>
+          <CardContent className="text-center space-y-6">
+            <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+              <p className="text-sm text-emerald-700 font-medium">🎉 Parabéns! Sua conta foi criada com sucesso.</p>
+              <p className="text-xs text-emerald-600 mt-1">
+                Agora você pode fazer login e começar a organizar suas finanças.
+              </p>
+            </div>
             <Link href="/login">
-              <Button className="w-full">Fazer Login</Button>
+              <Button className="w-full finlife-button-primary h-12 text-base font-semibold">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Fazer Login
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -185,196 +186,250 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Criar Conta</CardTitle>
-          <CardDescription className="text-center">Preencha os dados para criar sua conta</CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          {apiError && (
-            <Alert className="bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700">{apiError}</AlertDescription>
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Nome e Sobrenome */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome *</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="nome"
-                    placeholder="Seu nome"
-                    value={formData.nome}
-                    onChange={(e) => handleInputChange("nome", e.target.value)}
-                    className={`pl-10 ${errors.nome ? "border-red-500" : ""}`}
-                  />
-                </div>
-                {errors.nome && <p className="text-sm text-red-500">{errors.nome}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sobrenome">Sobrenome *</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="sobrenome"
-                    placeholder="Seu sobrenome"
-                    value={formData.sobrenome}
-                    onChange={(e) => handleInputChange("sobrenome", e.target.value)}
-                    className={`pl-10 ${errors.sobrenome ? "border-red-500" : ""}`}
-                  />
-                </div>
-                {errors.sobrenome && <p className="text-sm text-red-500">{errors.sobrenome}</p>}
-              </div>
+    <div className="min-h-screen finlife-gradient flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-2xl space-y-8">
+        {/* Logo e Header */}
+        <div className="text-center">
+          <div className="flex justify-center mb-6">
+            <div className="bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-white/20">
+              <LogoDark height={53} />
             </div>
-
-            {/* CPF e Data de Nascimento */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF *</Label>
-                <div className="relative">
-                  <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="cpf"
-                    placeholder="000.000.000-00"
-                    value={formData.cpf}
-                    onChange={(e) => handleInputChange("cpf", e.target.value)}
-                    className={`pl-10 ${errors.cpf ? "border-red-500" : ""}`}
-                    maxLength={14}
-                  />
-                </div>
-                {errors.cpf && <p className="text-sm text-red-500">{errors.cpf}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dthr_nascimento">Data de Nascimento *</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="dthr_nascimento"
-                    type="date"
-                    value={formData.dthr_nascimento}
-                    onChange={(e) => handleInputChange("dthr_nascimento", e.target.value)}
-                    className={`pl-10 ${errors.dthr_nascimento ? "border-red-500" : ""}`}
-                  />
-                </div>
-                {errors.dthr_nascimento && <p className="text-sm text-red-500">{errors.dthr_nascimento}</p>}
-              </div>
-            </div>
-
-            {/* Endereço */}
-            <div className="space-y-2">
-              <Label htmlFor="endereco">Endereço *</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="endereco"
-                  placeholder="Seu endereço completo"
-                  value={formData.endereco}
-                  onChange={(e) => handleInputChange("endereco", e.target.value)}
-                  className={`pl-10 ${errors.endereco ? "border-red-500" : ""}`}
-                />
-              </div>
-              {errors.endereco && <p className="text-sm text-red-500">{errors.endereco}</p>}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
-                />
-              </div>
-              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-            </div>
-
-            {/* Senhas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="senha">Senha *</Label>
-                <div className="relative">
-                  <Input
-                    id="senha"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Mínimo 6 caracteres"
-                    value={formData.senha}
-                    onChange={(e) => handleInputChange("senha", e.target.value)}
-                    className={`pr-10 ${errors.senha ? "border-red-500" : ""}`}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-                {errors.senha && <p className="text-sm text-red-500">{errors.senha}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmarSenha">Confirmar Senha *</Label>
-                <div className="relative">
-                  <Input
-                    id="confirmarSenha"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirme sua senha"
-                    value={formData.confirmarSenha}
-                    onChange={(e) => handleInputChange("confirmarSenha", e.target.value)}
-                    className={`pr-10 ${errors.confirmarSenha ? "border-red-500" : ""}`}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-                {errors.confirmarSenha && <p className="text-sm text-red-500">{errors.confirmarSenha}</p>}
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Criando conta..." : "Criar Conta"}
-            </Button>
-          </form>
-
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Já tem uma conta?{" "}
-              <Link href="/login" className="text-primary hover:underline font-medium">
-                Fazer login
-              </Link>
-            </p>
           </div>
-        </CardContent>
-      </Card>
+          <h1 className="text-3xl font-bold text-white mb-2">Crie sua conta</h1>
+          <p className="text-emerald-100">Comece sua jornada rumo à liberdade financeira</p>
+        </div>
+
+        {/* Card de Cadastro */}
+        <Card className="finlife-card border-0 shadow-2xl">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-2xl font-bold text-center text-slate-800">Cadastro</CardTitle>
+            <CardDescription className="text-center text-slate-600">
+              Preencha seus dados para criar sua conta gratuita
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {apiError && (
+              <Alert className="bg-red-50 border-red-200">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-700">{apiError}</AlertDescription>
+              </Alert>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Nome e Sobrenome */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nome" className="text-slate-700 font-medium">
+                    Nome *
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
+                    <Input
+                      id="nome"
+                      placeholder="Seu nome"
+                      value={formData.nome}
+                      onChange={(e) => handleInputChange("nome", e.target.value)}
+                      className={`pl-10 finlife-input h-12 ${errors.nome ? "border-red-500" : ""}`}
+                    />
+                  </div>
+                  {errors.nome && <p className="text-sm text-red-500">{errors.nome}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sobrenome" className="text-slate-700 font-medium">
+                    Sobrenome *
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
+                    <Input
+                      id="sobrenome"
+                      placeholder="Seu sobrenome"
+                      value={formData.sobrenome}
+                      onChange={(e) => handleInputChange("sobrenome", e.target.value)}
+                      className={`pl-10 finlife-input h-12 ${errors.sobrenome ? "border-red-500" : ""}`}
+                    />
+                  </div>
+                  {errors.sobrenome && <p className="text-sm text-red-500">{errors.sobrenome}</p>}
+                </div>
+              </div>
+
+              {/* CPF e Data de Nascimento */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cpf" className="text-slate-700 font-medium">
+                    CPF *
+                  </Label>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
+                    <Input
+                      id="cpf"
+                      placeholder="000.000.000-00"
+                      value={formData.cpf}
+                      onChange={(e) => handleInputChange("cpf", e.target.value)}
+                      className={`pl-10 finlife-input h-12 ${errors.cpf ? "border-red-500" : ""}`}
+                      maxLength={14}
+                    />
+                  </div>
+                  {errors.cpf && <p className="text-sm text-red-500">{errors.cpf}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dthr_nascimento" className="text-slate-700 font-medium">
+                    Data de Nascimento *
+                  </Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
+                    <Input
+                      id="dthr_nascimento"
+                      type="date"
+                      value={formData.dthr_nascimento}
+                      onChange={(e) => handleInputChange("dthr_nascimento", e.target.value)}
+                      className={`pl-10 finlife-input h-12 ${errors.dthr_nascimento ? "border-red-500" : ""}`}
+                    />
+                  </div>
+                  {errors.dthr_nascimento && <p className="text-sm text-red-500">{errors.dthr_nascimento}</p>}
+                </div>
+              </div>
+
+              {/* Endereço */}
+              <div className="space-y-2">
+                <Label htmlFor="endereco" className="text-slate-700 font-medium">
+                  Endereço *
+                </Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
+                  <Input
+                    id="endereco"
+                    placeholder="Seu endereço completo"
+                    value={formData.endereco}
+                    onChange={(e) => handleInputChange("endereco", e.target.value)}
+                    className={`pl-10 finlife-input h-12 ${errors.endereco ? "border-red-500" : ""}`}
+                  />
+                </div>
+                {errors.endereco && <p className="text-sm text-red-500">{errors.endereco}</p>}
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-slate-700 font-medium">
+                  Email *
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`pl-10 finlife-input h-12 ${errors.email ? "border-red-500" : ""}`}
+                  />
+                </div>
+                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+              </div>
+
+              {/* Senhas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="senha" className="text-slate-700 font-medium">
+                    Senha *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="senha"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={formData.senha}
+                      onChange={(e) => handleInputChange("senha", e.target.value)}
+                      className={`pr-12 finlife-input h-12 ${errors.senha ? "border-red-500" : ""}`}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-slate-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-slate-400" />
+                      )}
+                    </Button>
+                  </div>
+                  {errors.senha && <p className="text-sm text-red-500">{errors.senha}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmarSenha" className="text-slate-700 font-medium">
+                    Confirmar Senha *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmarSenha"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirme sua senha"
+                      value={formData.confirmarSenha}
+                      onChange={(e) => handleInputChange("confirmarSenha", e.target.value)}
+                      className={`pr-12 finlife-input h-12 ${errors.confirmarSenha ? "border-red-500" : ""}`}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-slate-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-slate-400" />
+                      )}
+                    </Button>
+                  </div>
+                  {errors.confirmarSenha && <p className="text-sm text-red-500">{errors.confirmarSenha}</p>}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full finlife-button-primary h-12 text-base font-semibold"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Criando conta...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <UserPlus className="h-4 w-4" />
+                    <span>Criar Conta Gratuita</span>
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            <div className="text-center pt-4 border-t border-emerald-100">
+              <p className="text-sm text-slate-600">
+                Já tem uma conta?{" "}
+                <Link
+                  href="/login"
+                  className="text-emerald-600 hover:text-emerald-700 font-semibold hover:underline transition-colors"
+                >
+                  Fazer login
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="text-center">
+          <p className="text-emerald-100 text-sm">© 2024 FinLife. Transformando sua relação com o dinheiro.</p>
+        </div>
+      </div>
     </div>
   )
 }

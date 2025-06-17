@@ -7,6 +7,7 @@ import { loginUser, setAuthToken, removeAuthToken, getUserFromToken, loginRole, 
 
 interface AuthContextType {
   user: User | null
+  setUser: (user: User | null) => void
   login: (email: string, password: string) => Promise<User>
   logout: () => void
   isLoading: boolean
@@ -106,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, setUser, login, logout, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

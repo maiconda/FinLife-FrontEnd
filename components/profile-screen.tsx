@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { User, Mail, Calendar, FileText, AlertCircle, RefreshCw } from "lucide-react"
 import { getUserProfile, type UserProfileResponse } from "../lib/api"
 import { useAuth } from "../context/auth-context"
+import EditProfileModal from "./edit-profile-modal"
 
 export default function ProfileScreen() {
   const { user: authUser } = useAuth()
@@ -30,6 +31,11 @@ export default function ProfileScreen() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleProfileUpdate = (updatedData: UserProfileResponse) => {
+    setProfileData(updatedData)
+    console.log("Perfil atualizado na tela:", updatedData)
   }
 
   useEffect(() => {
@@ -140,10 +146,11 @@ export default function ProfileScreen() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Meu Perfil</h1>
-            <p className="text-gray-600 mt-1">Visualize suas informações pessoais</p>
+            <p className="text-gray-600 mt-1">Visualize e edite suas informações pessoais</p>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant={authUser?.role === "admin" ? "default" : "secondary"}>{authUser?.role}</Badge>
+            <Badge variant={authUser?.role === "ADMIN" ? "default" : "secondary"}>{authUser?.role}</Badge>
+            <EditProfileModal profileData={profileData} onSuccess={handleProfileUpdate} />
             <Button onClick={fetchProfile} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar
@@ -194,6 +201,14 @@ export default function ProfileScreen() {
             <div className="flex items-center space-x-3">
               <FileText className="h-4 w-4 text-muted-foreground" />
               <div>
+                <p className="text-sm font-medium text-gray-500">Endereço</p>
+                <p className="text-base">{profileData.user.endereco || "Não informado"}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <div>
                 <p className="text-sm font-medium text-gray-500">ID do Usuário</p>
                 <p className="text-base">#{profileData.user.id}</p>
               </div>
@@ -230,7 +245,7 @@ export default function ProfileScreen() {
               <User className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-gray-500">Nível de Acesso</p>
-                <Badge variant={authUser?.role === "admin" ? "default" : "secondary"} className="mt-1">
+                <Badge variant={authUser?.role === "ADMIN" ? "default" : "secondary"} className="mt-1">
                   {authUser?.role}
                 </Badge>
               </div>

@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { Mail, CheckCircle, Clock, X, RefreshCw, AlertCircle, Building } from "lucide-react"
 import { getUserInvites, acceptInvite, type ConviteItem } from "../lib/api"
-import CreateOrganizationModal from "./create-organization-modal"
+import CreateGroupModal from "./create-group-modal"
 
 export default function ConvitesScreen() {
   const [invites, setInvites] = useState<ConviteItem[]>([])
@@ -54,6 +54,11 @@ export default function ConvitesScreen() {
         return newSet
       })
     }
+  }
+
+  const handleRoleUpdate = async (newRole: string) => {
+    // Atualizar role no contexto
+    // Redirecionar se necessário baseado na nova role
   }
 
   useEffect(() => {
@@ -154,12 +159,12 @@ export default function ConvitesScreen() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Building className="h-5 w-5" />
-            <span>Criar Organização</span>
+            <span>Criar Grupo Financeiro</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600 mb-4">Não encontrou a organização que procura? Crie uma nova!</p>
-          <CreateOrganizationModal onSuccess={fetchInvites} />
+          <p className="text-gray-600 mb-4">Não encontrou o grupo financeiro que procura? Crie um novo!</p>
+          <CreateGroupModal onSuccess={fetchInvites} />
         </CardContent>
       </Card>
 

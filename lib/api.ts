@@ -25,6 +25,15 @@ export interface LoginData {
   senha: string
 }
 
+export interface UpdateUserData {
+  nome: string
+  sobrenome: string
+  dthr_nascimento: string
+  endereco: string
+  email: string
+  senha?: string
+}
+
 export interface LoginResponse {
   token: string
 }
@@ -46,6 +55,7 @@ export interface UserProfileResponse {
     sobrenome: string
     cpf: string
     dthr_nascimento: string
+    endereco: string
     id: number
   }
   userInfo: {
@@ -138,6 +148,19 @@ export async function getUserProfile(): Promise<UserProfileResponse> {
       throw new Error(message)
     }
     throw new Error("Erro ao obter perfil do usuário")
+  }
+}
+
+export async function updateUserProfile(data: UpdateUserData): Promise<UserProfileResponse> {
+  try {
+    const response = await api.patch<UserProfileResponse>("/users/update", data)
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao atualizar perfil"
+      throw new Error(message)
+    }
+    throw new Error("Erro ao atualizar perfil")
   }
 }
 
