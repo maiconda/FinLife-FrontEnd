@@ -1,258 +1,106 @@
 import axios from "axios"
+import type { LoginRequest, LoginResponse, RegisterRequest, RoleResponse, AuthUser } from "@/types/auth"
+import type { Convite, ConviteEnviado, Membro } from "@/types/invites"
+import type { Patrimonio, PatrimonioDetalhado, CreatePatrimonioRequest } from "@/types/patrimonio"
+import type {
+  SaidaCategoria,
+  TipoSaida,
+  SaidaPrioridade,
+  EntradaCategoria,
+  TipoEntrada,
+  CreateSaidaRequest,
+  CreateEntradaRequest,
+  Saida,
+  Entrada,
+  Metadata,
+} from "@/types/financeiro"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+type SaidaCategoriasResponse = SaidaCategoria[]
+type SaidaPrioridadesResponse = { saidas: SaidaPrioridade[]; saidasPublicas: SaidaPrioridade[] }
 
-// Criar instância do axios com configuração base
 const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 })
 
-export interface RegisterData {
-  nome: string
-  sobrenome: string
-  cpf: string
-  dthr_nascimento: string
-  endereco: string
-  email: string
-  senha: string
-}
-
-export interface LoginData {
-  email: string
-  senha: string
-}
-
-export interface UpdateUserData {
-  nome: string
-  sobrenome: string
-  dthr_nascimento: string
-  endereco: string
-  email: string
-  senha?: string
-}
-
-export interface LoginResponse {
-  token: string
-}
-
-export interface RoleResponse {
-  role: string
-}
-
-export interface User {
-  id: string
-  email: string
-  name: string
-  role: string
-}
-
-export interface UserProfileResponse {
-  user: {
-    nome: string
-    sobrenome: string
-    cpf: string
-    dthr_nascimento: string
-    endereco: string
-    id: number
-  }
-  userInfo: {
-    id: number
-    email: string
-  }
-}
-
-export interface ConviteItem {
-  id: number
-  cargo: string
-  usuarioDestinoId: number
-  grupo_financeiro_usuarioId: number
-  recusado: boolean
-  pendente: boolean
-  grupoFinanceiroId: number
-}
-
-export interface ConvitesResponse {
-  convitesUsuario: ConviteItem[]
-}
-
-export interface AcceptInviteResponse {
-  usuarioOrgCriado: {
-    id: number
-    id_ativo: boolean
-    dthr_cadastro: string
-    role: string
-    id_usuario_info_cadastro: number
-    id_usuario_info: number
-    id_grupo_financeiro: number
-  }
-}
-
-export interface CreateOrganizationData {
-  nome: string
-}
-
-export async function registerUser(data: RegisterData): Promise<void> {
-  try {
-    await api.post("/users", data)
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao cadastrar usuário"
-      throw new Error(message)
+// Interceptor para adicionar token automaticamente
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token")
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
-    throw new Error("Erro ao cadastrar usuário")
   }
-}
-
-export async function loginUser(data: LoginData): Promise<{ user: User; token: string }> {
-  try {
-    // 1. Fazer login e obter token
-    const loginResponse = await api.post<LoginResponse>("/users/login", data)
-    const { token } = loginResponse.data
-
-    // 2. Configurar token no header para próximas requisições
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`
-
-    // 3. Obter role do usuário
-    const roleResponse = await api.post<RoleResponse>("/dev/cargo")
-    const { role } = roleResponse.data
-
-    // 4. Decodificar token para obter dados do usuário
-    const userData = getUserFromToken(token)
-
-    // 5. Combinar dados do token com a role da API
-    const user: User = {
-      ...userData,
-      role: role, // Usar role da API em vez do token
-    }
-
-    return { user, token }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao fazer login"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao fazer login")
-  }
-}
-
-export async function getUserProfile(): Promise<UserProfileResponse> {
-  try {
-    const response = await api.get<UserProfileResponse>("/users/profile")
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao obter perfil do usuário"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao obter perfil do usuário")
-  }
-}
-
-export async function updateUserProfile(data: UpdateUserData): Promise<UserProfileResponse> {
-  try {
-    const response = await api.patch<UserProfileResponse>("/users/update", data)
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao atualizar perfil"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao atualizar perfil")
-  }
-}
-
-export async function getUserInvites(): Promise<ConvitesResponse> {
-  try {
-    const response = await api.get<ConvitesResponse>("/usuario/convites")
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao obter convites"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao obter convites")
-  }
-}
-
-export async function acceptInvite(inviteId: number): Promise<AcceptInviteResponse> {
-  try {
-    const response = await api.post<AcceptInviteResponse>(`/usuario/convites/aceitar/${inviteId}`)
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao aceitar convite"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao aceitar convite")
-  }
-}
-
-export async function createOrganization(data: CreateOrganizationData): Promise<void> {
-  try {
-    await api.post("/groups", data)
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao criar organização"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao criar organização")
-  }
-}
-
-export async function loginRole(): Promise<RoleResponse> {
-  try {
-    const response = await api.post<RoleResponse>("/dev/cargo")
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.response?.data?.error || "Erro ao obter cargo do usuário"
-      throw new Error(message)
-    }
-    throw new Error("Erro ao obter cargo do usuário")
-  }
-}
-
-export function getUserFromToken(token: string): Omit<User, "role"> {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]))
-    return {
-      id: payload.sub || payload.id || "unknown",
-      email: payload.email || "",
-      name: payload.name || payload.nome || "Usuário",
-    }
-  } catch {
-    throw new Error("Token inválido")
-  }
-}
-
-// Função para configurar token em requisições futuras
-export function setAuthToken(token: string) {
-  api.defaults.headers.common["Authorization"] = `Bearer ${token}`
-}
-
-// Função para remover token
-export function removeAuthToken() {
-  delete api.defaults.headers.common["Authorization"]
-}
+  return config
+})
 
 // Interceptor para lidar com erros de autenticação
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado ou inválido
-      removeAuthToken()
-      // Aqui você pode redirecionar para login se necessário
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token")
-        window.location.href = "/login"
-      }
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token")
+      window.location.href = "/login"
     }
     return Promise.reject(error)
   },
 )
+
+export const authApi = {
+  register: (data: RegisterRequest) => api.post("/users", data),
+  login: (data: LoginRequest) => api.post<LoginResponse>("/users/login", data),
+  getRole: () => api.get<RoleResponse>("/grupo-financeiro/cargo"),
+  getProfile: () => api.get<AuthUser>("/users/profile"),
+  updateProfile: (data: Partial<RegisterRequest>) => api.patch("/users/update", data),
+}
+
+export const inviteApi = {
+  getReceivedInvites: () => api.get<{ convitesUsuario: Convite[] }>("/usuario/convites"),
+  acceptInvite: (id: number) => api.post(`/usuario/convites/aceitar/${id}`),
+  declineInvite: (id: number) => api.post(`/usuario/convites/recusar/${id}`),
+  getSentInvites: () => api.get<{ convites: ConviteEnviado[] }>("/convites"),
+  sendInvite: (data: { cargo: string; usuarioDestinoEmail: string }) =>
+    api.post("/grupo-financeiro/convite-por-email", data),
+  removeInvite: (id: number) => api.post(`/convite/${id}`),
+}
+
+export const groupApi = {
+  createGroup: (data: { nome: string }) => api.post("/groups", data),
+  getMembers: () => api.get<{ membros: Membro[] }>("/grupo-financeiro/membros"),
+  quitGroup: () => api.post("/groups/quit"),
+}
+
+export const patrimonioApi = {
+  create: (data: CreatePatrimonioRequest) => api.post("/patrimonio", data),
+  getOwn: () => api.post<{ patrimonios: Patrimonio[] }>("/patrimonios"),
+  getById: (id: number) => api.get<{ patrimonios: PatrimonioDetalhado }>(`/patrimonio/${id}`),
+  delete: (id: number) => api.delete(`/patrimonio/${id}`),
+  update: (id: number, data: Partial<CreatePatrimonioRequest>) => api.patch(`/patrimonio/${id}`, data),
+  getGroupPatrimonios: () => api.post<{ patrimonios: Patrimonio[] }>("/patrimonios/grupo-financeiro"),
+}
+
+export const financeiroApi = {
+  // Saídas
+  getSaidaCategorias: () => api.get<SaidaCategoriasResponse>("/saida/categorias"),
+  getSaidaTipos: () => api.get<{ tiposPublicos: TipoSaida[]; tiposPrivados: TipoSaida[] }>("/saida-tipo/todos"),
+  getSaidaPrioridades: () => api.get<SaidaPrioridadesResponse>("/saida-prioridade"),
+  createSaida: (data: CreateSaidaRequest) => api.post("/saida", data),
+  getSaidas: () => api.get<{ saidas: Saida[]; usuario: any }>("/saidas"),
+  getSaidasGrupo: () => api.get<{ saidas: Saida[] }>("/saidas/grupo"),
+  deleteSaida: (id: number) => api.delete(`/saida/${id}`),
+
+  // Entradas
+  getEntradaCategorias: () =>
+    api.get<{ entradasCategoriasPadrao: EntradaCategoria[]; entradasCategoriasUsuario: EntradaCategoria[] }>(
+      "/entrada/categorias",
+    ),
+  getEntradaTipos: () => api.get<{ tiposPublicos: TipoEntrada[]; tiposPrivados: TipoEntrada[] }>("/entrada-tipo/todos"),
+  createEntrada: (data: CreateEntradaRequest) => api.post("/entrada", data),
+  getEntradas: () => api.get<{ entradas: Entrada[]; usuario: any }>("/entradas"),
+  getEntradasGrupo: () => api.get<{ entradas: Entrada[] }>("/entradas/grupo"),
+  deleteEntrada: (id: number) => api.delete(`/entrada/${id}`),
+
+  // Metadata
+  getMetadata: () => api.get<Metadata>("/metadata"),
+}
 
 export default api

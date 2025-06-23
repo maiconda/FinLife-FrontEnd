@@ -2,22 +2,25 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../context/auth-context"
+import { useAuth } from "@/contexts/auth-context"
 
-export default function Home() {
+export default function HomePage() {
+  const { user, loading } = useAuth()
   const router = useRouter()
-  const { user } = useAuth()
 
   useEffect(() => {
-    // Redirecionar baseado na permissão
-    if (!user) {
-      router.push("/login")
-    } else if (user.role === "CONVIDADO") {
-      router.push("/convite")
-    } else {
-      router.push("/dashboard")
+    if (!loading) {
+      if (user) {
+        router.push("/dashboard")
+      } else {
+        router.push("/login")
+      }
     }
-  }, [user, router])
+  }, [user, loading, router])
 
-  return null // Não renderiza nada, apenas redireciona
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>
+  )
 }

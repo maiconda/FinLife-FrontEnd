@@ -2,28 +2,25 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { AuthProvider } from "../context/auth-context"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "@/components/providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Sistema de Permissões",
-  description: "Sistema com múltiplos níveis de permissão",
-    generator: 'v0.dev'
+  title: "FinLife - Gerenciamento Financeiro",
+  description: "Sistema de gerenciamento financeiro para grupos",
+    generator: 'maiconda'
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="pt-BR">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

@@ -4,59 +4,48 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 98%; /* Slightly darker than pure white */
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
     --primary: 142.1 76.2% 36.3%;
     --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 210 40% 98%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 98%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 98%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: 142.1 76.2% 36.3%;
-    --radius: 0.75rem;
-
-    /* FinLife Custom Colors */
-    --finlife-primary: 142.1 76.2% 36.3%; /* emerald-600 */
-    --finlife-secondary: 158.1 64.4% 51.6%; /* emerald-500 */
-    --finlife-accent: 166.1 76.5% 46.7%; /* teal-500 */
-    --finlife-success: 142.1 70.6% 45.3%; /* green-600 */
-    --finlife-warning: 32.1 94.6% 43.7%; /* orange-500 */
-    --finlife-danger: 0 84.2% 60.2%; /* red-500 */
-    --finlife-neutral: 215 13.8% 34.1%; /* slate-600 */
-    --finlife-light: 210 20% 98%; /* slate-50 */
-    --finlife-dark: 222.2 84% 4.9%; /* slate-900 */
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 240 10% 8%; /* Slightly lighter than pure black */
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142.1 76.2% 36.3%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142.1 70.6% 45.3%;
   }
 }
 
@@ -71,31 +60,19 @@
 }
 
 @layer components {
-  .finlife-gradient {
-    @apply bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600;
+  .minimal-card {
+    @apply bg-card border border-border/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
   }
 
-  .finlife-card {
-    @apply bg-white/80 backdrop-blur-sm border border-emerald-100 shadow-lg shadow-emerald-500/10;
+  .minimal-button {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
-  .finlife-button-primary {
-    @apply bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/25 transition-all duration-200;
+  .glass-effect {
+    @apply backdrop-blur-sm bg-background/80 border border-border/50;
   }
 
-  .finlife-button-secondary {
-    @apply bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm transition-all duration-200;
-  }
-
-  .finlife-input {
-    @apply border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500/20;
-  }
-
-  .finlife-sidebar {
-    @apply bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900;
-  }
-
-  .finlife-stats-card {
-    @apply bg-gradient-to-br from-white to-emerald-50/50 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200;
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
   }
 }
