@@ -2,6 +2,15 @@
 
 ### Para rodar o projeto siga os passos abaixo:
 
+#### Pré-requisitos
+
+Antes de começar, você precisa ter instalado na sua máquina:
+
+ - Node.js (versão recomendada LTS)
+ - PNPM
+
+Após isso:
+
 1. Instale as dependências do projeto com o comando:
    ```bash
    pnpm install
