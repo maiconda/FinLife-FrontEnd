@@ -190,7 +190,6 @@ export default function InvitesPage() {
                         <Badge variant={convite.cargo === "ADMIN" ? "default" : "secondary"}>
                           {formatRole(convite.cargo as Role)}
                         </Badge>
-                        {getStatusBadge(convite)}
                       </div>
                     </div>
                     {convite.pendente && (

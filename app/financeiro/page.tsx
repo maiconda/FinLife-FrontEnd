@@ -486,11 +486,10 @@ export default function FinanceiroPage() {
                           <Input
                             id="valor-saida"
                             type="number"
-                            step="0.01"
                             min="0"
                             value={saidaForm.valor}
                             onChange={(e) =>
-                              setSaidaForm((prev) => ({ ...prev, valor: Number.parseFloat(e.target.value) || 0 }))
+                              setSaidaForm((prev) => ({ ...prev, valor: Number.parseFloat(e.target.value) }))
                             }
                             placeholder="0.00"
                             required

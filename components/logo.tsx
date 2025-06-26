@@ -33,7 +33,7 @@ export function Logo({ className = "", height = 25 }: LogoProps) {
 
   return (
     <Image
-      src={logoSrc || "/placeholder.svg"}
+      src={logoSrc}
       alt="FinLife"
       height={height}
       width={0}

@@ -47,7 +47,7 @@ export interface TipoEntrada {
 
 export interface CreateSaidaRequest {
   nome: string
-  dthr_saida: string
+  dthr_saida: string | null
   id_saida_categoria: number
   id_pagamento_saida_tipo: number
   id_saida_prioridade: number
@@ -59,7 +59,7 @@ export interface CreateSaidaRequest {
 
 export interface CreateEntradaRequest {
   nome: string
-  dthr_entrada: string
+  dthr_entrada: string | null
   id_entrada_categoria: number
   id_pagamento_entrada_tipo: number
   id_usuario_info: number

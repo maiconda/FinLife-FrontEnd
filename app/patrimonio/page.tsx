@@ -363,9 +363,6 @@ export default function PatrimonioPage() {
                     <Card key={patrimonio.id} className="relative">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg">{patrimonio.patrimonio.nome}</CardTitle>
-                        <Badge variant="outline" className="w-fit">
-                          {patrimonio.id_ativo ? "Ativo" : "Inativo"}
-                        </Badge>
                       </CardHeader>
                       <CardContent className="space-y-2">
                         <div>
@@ -471,9 +468,6 @@ export default function PatrimonioPage() {
                             <p className="text-sm text-muted-foreground">Cadastrado em</p>
                             <p className="text-sm">{formatDate(patrimonio.dthr_cadastro)}</p>
                           </div>
-                          <Badge variant="outline" className="w-fit">
-                            {patrimonio.id_ativo ? "Ativo" : "Inativo"}
-                          </Badge>
                         </CardContent>
                       </Card>
                     ))}
